@@ -12,7 +12,7 @@ from pymongo.server_api import ServerApi
 from bson import ObjectId
 
 # Librerías para utilizar FastAPI
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Response
 from pydantic import BaseModel, EmailStr
 
 # Librerías de FastAPI para la seguridad
@@ -345,28 +345,29 @@ async def enviar_email(usuario: Usuario):
     except Exception as error:
         return f"Ocurrió un error: {error}"
 
-@app.get("/textos/{identificador}", status_code = status.HTTP_200_OK, summary="Endpoint para verificar los textos")
+@app.get("/textos/{identificador}", status_code=status.HTTP_200_OK, summary="Endpoint para verificar los textos")
 async def recuperar_textos(identificador: str):
-    """
-        # Endpoint para obtener textos de la base de datos
-
-        # Códigos de estado.
-            * 200 - Obtenidos con exito
-    """
     try:
-        # Obtenemos los resultados
+        # Separar el identificador
+        identificador, *otros = identificador.split('.')
+
+        # Consultar la base de datos
         resultado_obtenido = TEXTO.find_one({'_id': ObjectId(identificador)}, {'texto_pantalla': 1})
 
-        # Verificamos la respuesta
+        # Verificar si se encontraron resultados
         if not resultado_obtenido:
             return "No hay datos"
 
-        # Cambiamos el tipo de dato de la clave _id
+        # Cambiar el tipo de dato de la clave _id
         resultado_obtenido['_id'] = str(resultado_obtenido['_id'])
 
-        # Regresamos la respuesta
-        return resultado_obtenido['texto_pantalla']
-    # En caso de haber un error, regresa el error ocurrido
+        # Formatear el texto si es una lista
+        texto = resultado_obtenido.get('texto_pantalla', '')
+        texto_formateado = '\n'.join(texto) if isinstance(texto, list) else texto
+
+        # Devolver la respuesta
+        return Response(content=str(texto_formateado), media_type="text/plain") if otros else resultado_obtenido['texto_pantalla']
+
     except Exception as error:
         return f"Ocurrió un error: {error}"
 
@@ -379,19 +380,24 @@ async def recuperar_estado(identificador: str):
             * 200 - Obtenidos con exito
     """
     try:
-        # Obtenemos los resultados
-        resultado_obtenido = TEXTO.find_one({'_id': ObjectId(identificador)}, {'estado': 1,})
+        # Separamos el identificador
+        identificador, *otros = identificador.split('.')
 
-        # Verificamos la respuesta
+        # Consultamos en la base de datos
+        resultado_obtenido = TEXTO.find_one({'_id': ObjectId(identificador)}, {'estado': 1})
+
+        # Verificar si se encontraron resultados
         if not resultado_obtenido:
             return "No hay datos"
 
         # Cambiamos el tipo de dato de la clave _id
         resultado_obtenido['_id'] = str(resultado_obtenido['_id'])
 
-        # Regresamos la respuesta
-        return resultado_obtenido['estado']
+        # Formateamos el texto si es una lista
+        texto = resultado_obtenido.get('estado', '')
+        texto_formateado = '\n'.join(texto) if isinstance(texto, list) else texto
 
-    # En caso de haber un error, regresa el error ocurrido
+        # Devolvemos la respuesta
+        return Response(content=str(texto_formateado), media_type="text/plain") if otros else resultado_obtenido['estado']
     except Exception as error:
         return f"Ocurrió un error: {error}"
