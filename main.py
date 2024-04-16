@@ -25,7 +25,7 @@ from datetime import datetime
 app = FastAPI()
 
 # Constante de la URI
-URI = os.environ['']
+URI = os.environ['URI']
 
 #  Conectamos con nuestro Cluster de MongoDB
 CLIENTE = MongoClient(URI, server_api=ServerApi('1'))
