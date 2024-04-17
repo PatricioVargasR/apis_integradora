@@ -94,7 +94,7 @@ class Efemeride(BaseModel):
 
 class Dispositivos(BaseModel):
     obra_asociada: str
-    texto_pantalla: list
+    texto_pantalla: dict
     estado: int
 
 
