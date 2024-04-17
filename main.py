@@ -102,7 +102,6 @@ class Dispositivos(BaseModel):
 def presentacion():
     return {"Desarrollador por": ["Janneth", "David", "Patricio"]}
 
-
 # Rutas para las operaciones CRUD de Categorias
 @app.get("/categorias", status_code=status.HTTP_200_OK, summary="Endpoint para listar datos de categorías")
 async def obtener_categorias():
